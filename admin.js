@@ -10,6 +10,18 @@
 // Replace with your deployed Cloudflare Worker URL:
 const OAUTH_WORKER_URL = 'https://zhuoqi-homepage-admin.zhuoqi-homepage.workers.dev';
 
+// --- Helpers ---
+
+/** Safely encode a Unicode string to base64 (replaces deprecated unescape). */
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 // --- DOM Elements ---
 const loginGate = document.getElementById('login-gate');
 const loginBtn = document.getElementById('login-btn');
@@ -370,7 +382,7 @@ btnPublish.addEventListener('click', async () => {
       }
     } catch { /* file doesn't exist yet */ }
 
-    const mdContent = btoa(unescape(encodeURIComponent(data.body)));
+    const mdContent = toBase64(data.body);
     const mdBody = { message: `Publish: ${data.title}`, content: mdContent };
     if (mdSha) mdBody.sha = mdSha;
 
@@ -411,7 +423,7 @@ btnPublish.addEventListener('click', async () => {
       manifest.unshift(entry);
     }
 
-    const manifestContent = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2) + '\n')));
+    const manifestContent = toBase64(JSON.stringify(manifest, null, 2) + '\n');
     const mfResp = await fetch('https://api.github.com/repos/zhuoq1/homepage/contents/posts-manifest.json', {
       method: 'PUT',
       headers: {
@@ -434,7 +446,13 @@ btnPublish.addEventListener('click', async () => {
     clearDraft('new');
     currentSlug = data.slug;
     btnDelete.hidden = false;
-    showStatus(`Published! View at <a href="/post.html?slug=${encodeURIComponent(data.slug)}" target="_blank">/post.html?slug=${data.slug}</a> (may take ~60s for GitHub Pages to deploy)`, 'success');
+    showStatusLink(
+      `Published! View at`,
+      `/post.html?slug=${encodeURIComponent(data.slug)}`,
+      `/post.html?slug=${encodeURIComponent(data.slug)}`,
+      ` (may take ~60s for GitHub Pages to deploy)`,
+      'success'
+    );
 
     // Refresh manifest cache
     postsManifest = manifest;
@@ -491,7 +509,7 @@ btnDelete.addEventListener('click', async () => {
     const manifest = JSON.parse(atob(manifestFile.content));
     const newManifest = manifest.filter((p) => p.slug !== slug);
 
-    const manifestContent = btoa(unescape(encodeURIComponent(JSON.stringify(newManifest, null, 2) + '\n')));
+    const manifestContent = toBase64(JSON.stringify(newManifest, null, 2) + '\n');
     await fetch('https://api.github.com/repos/zhuoq1/homepage/contents/posts-manifest.json', {
       method: 'PUT',
       headers: {
@@ -520,7 +538,24 @@ btnDelete.addEventListener('click', async () => {
 // ==========================================
 
 function showStatus(msg, type) {
-  adminStatus.innerHTML = msg;
+  adminStatus.textContent = msg;
+  adminStatus.className = `admin-status admin-status-${type}`;
+  adminStatus.hidden = false;
+  if (type === 'success') {
+    setTimeout(() => { adminStatus.hidden = true; }, 8000);
+  }
+}
+
+/** Like showStatus but includes a link. Builds DOM safely — no raw innerHTML. */
+function showStatusLink(before, href, text, after, type) {
+  adminStatus.innerHTML = '';
+  adminStatus.appendChild(document.createTextNode(before + ' '));
+  const a = document.createElement('a');
+  a.href = href;
+  a.target = '_blank';
+  a.textContent = text;
+  adminStatus.appendChild(a);
+  adminStatus.appendChild(document.createTextNode(after));
   adminStatus.className = `admin-status admin-status-${type}`;
   adminStatus.hidden = false;
   if (type === 'success') {

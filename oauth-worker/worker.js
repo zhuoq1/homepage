@@ -6,6 +6,9 @@
 // GitHub OAuth Client Secret never touches the browser.
 //
 // Only allows the owner (ALLOWED_USER) to authenticate.
+//
+// Uses an OAuth "state" parameter (stored in a short-lived
+// signed cookie) to prevent CSRF attacks on the auth flow.
 
 export default {
   async fetch(request, env) {
@@ -13,22 +16,53 @@ export default {
 
     // --- GET /auth — redirect to GitHub OAuth authorize page ---
     if (url.pathname === '/auth') {
+      // Generate a random state value for CSRF protection
+      const state = crypto.randomUUID();
+
+      // Build the GitHub OAuth URL
       const params = new URLSearchParams({
         client_id: env.GITHUB_CLIENT_ID,
         redirect_uri: `${url.origin}/callback`,
         scope: 'public_repo',
+        state,
       });
-      return Response.redirect(
+
+      const redirectResp = Response.redirect(
         `https://github.com/login/oauth/authorize?${params}`,
         302,
       );
+
+      // Store state in a short-lived, HttpOnly, Secure cookie
+      // (10-minute expiry covers the time to complete the GitHub auth flow)
+      redirectResp.headers.set(
+        'Set-Cookie',
+        `oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/`,
+      );
+
+      return redirectResp;
     }
 
-    // --- GET /callback?code=... — exchange code, verify user, redirect back ---
+    // --- GET /callback?code=...&state=... ---
     if (url.pathname === '/callback') {
       const code = url.searchParams.get('code');
+      const returnedState = url.searchParams.get('state');
+
       if (!code) {
         return new Response('Missing "code" parameter.', { status: 400 });
+      }
+
+      // Verify the state parameter matches the cookie (CSRF protection)
+      const cookieHeader = request.headers.get('Cookie') || '';
+      const cookies = Object.fromEntries(
+        cookieHeader.split(';').map((c) => c.trim().split('=')),
+      );
+      const storedState = cookies.oauth_state;
+
+      if (!returnedState || returnedState !== storedState) {
+        return new Response(
+          'Invalid state parameter. This may be a CSRF attack.',
+          { status: 403 },
+        );
       }
 
       // Exchange the code for an access token
@@ -85,7 +119,14 @@ export default {
       // (hash fragments never reach the server — they stay in the browser)
       const appUrl = env.APP_URL || 'https://zhuoqi.uk/admin.html';
       const redirectUrl = `${appUrl}#access_token=${tokenData.access_token}`;
-      return Response.redirect(redirectUrl, 302);
+
+      // Clear the state cookie
+      const resp = Response.redirect(redirectUrl, 302);
+      resp.headers.set(
+        'Set-Cookie',
+        'oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/',
+      );
+      return resp;
     }
 
     // --- Everything else ---
