@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin — Zhuoqi's Blog">
+  <title>Admin — Zhuoqi's Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Login Gate (shown when not authenticated) -->
+  <div id="login-gate" class="login-gate" hidden>
+    <div class="login-card">
+      <h1 class="login-title">Admin Login</h1>
+      <p class="login-desc">
+        Sign in with your GitHub account to access the admin panel.
+      </p>
+      <button id="login-btn" class="login-btn login-btn-github">
+        <svg class="login-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Sign in with GitHub
+      </button>
+      <p id="login-error" class="login-error" hidden></p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard (shown when authenticated) -->
+  <div id="admin-app" class="admin-app">
+    <!-- Top Bar -->
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <a href="/" class="admin-back-link">← Back to blog</a>
+        <span class="admin-brand">Admin</span>
+      </div>
+      <div class="admin-topbar-right">
+        <select id="post-selector" class="admin-select">
+          <option value="">+ New Post</option>
+        </select>
+        <button id="logout-btn" class="admin-btn-outline">Logout</button>
+      </div>
+    </header>
+
+    <!-- Editor -->
+    <main class="admin-main">
+      <!-- Metadata Form -->
+      <section class="admin-meta">
+        <div class="admin-meta-row">
+          <label class="admin-label">
+            Title
+            <input type="text" id="post-title" class="admin-input" placeholder="Post title...">
+          </label>
+        </div>
+        <div class="admin-meta-row admin-meta-row-3">
+          <label class="admin-label">
+            Date
+            <input type="date" id="post-date" class="admin-input">
+          </label>
+          <label class="admin-label">
+            Read time
+            <input type="text" id="post-readtime" class="admin-input" placeholder="5 min">
+          </label>
+          <label class="admin-label">
+            Slug
+            <input type="text" id="post-slug" class="admin-input" placeholder="my-post-slug">
+          </label>
+        </div>
+        <div class="admin-meta-row">
+          <label class="admin-label">
+            Tags (comma separated)
+            <input type="text" id="post-tags" class="admin-input" placeholder="AI, LLM, Agents">
+          </label>
+        </div>
+        <div class="admin-meta-row">
+          <label class="admin-label">
+            Excerpt
+            <textarea id="post-excerpt" class="admin-textarea" rows="2" placeholder="Brief summary for the post listing..."></textarea>
+          </label>
+        </div>
+      </section>
+
+      <!-- Split Pane: Editor + Preview -->
+      <div class="admin-editor">
+        <div class="admin-pane admin-pane-editor">
+          <div class="admin-pane-header">
+            <span>Markdown</span>
+            <span class="admin-pane-words" id="word-count">0 words</span>
+          </div>
+          <textarea id="editor-textarea" class="admin-editor-textarea" placeholder="# Start writing..."></textarea>
+        </div>
+        <div class="admin-pane admin-pane-preview">
+          <div class="admin-pane-header">Preview</div>
+          <div id="preview-pane" class="admin-preview-content post-content"></div>
+        </div>
+      </div>
+
+      <!-- Mobile tab toggle -->
+      <div class="admin-mobile-tabs">
+        <button id="tab-edit" class="admin-tab active">Edit</button>
+        <button id="tab-preview" class="admin-tab">Preview</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="admin-actions">
+        <button id="btn-draft" class="admin-btn">Save Draft</button>
+        <button id="btn-publish" class="admin-btn admin-btn-primary">Publish</button>
+        <button id="btn-delete" class="admin-btn admin-btn-danger" hidden>Delete Post</button>
+      </div>
+
+      <!-- Status messages -->
+      <p id="admin-status" class="admin-status" hidden></p>
+    </main>
+  </div>
+
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/purify.min.js"></script>
+  <script src="blog.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# oauth-worker — Cloudflare Worker for GitHub OAuth
+
+name = "zhuoqi-homepage-admin"
+main = "worker.js"
+compatibility_date = "2026-06-06"
+
+# Set these with `wrangler secret put`:
+#   GITHUB_CLIENT_ID
+#   GITHUB_CLIENT_SECRET
+#   ALLOWED_USER  (optional, defaults to "zhuoq1")
+#   APP_URL       (optional, defaults to "https://zhuoqi.uk/admin.html")
+
+[vars]
+ALLOWED_USER = "zhuoq1"
+APP_URL = "https://zhuoqi.uk/admin.html"

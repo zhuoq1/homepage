@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <title>Post — Zhuoqi's Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">Zhuoqi's Blog</a>
+      <ul class="nav-links">
+        <li><a href="/">Posts</a></li>
+        <li><a href="archive.html">Archive</a></li>
+        <li><a href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main">
+    <article class="post-article">
+      <header id="post-header" class="post-header">
+        <!-- Populated by blog.js -->
+      </header>
+
+      <div id="post-content" class="post-content">
+        <p class="loading-placeholder">Loading post...</p>
+      </div>
+
+      <a class="post-back" href="/">← Back to all posts</a>
+      <a id="post-edit-link" class="post-edit-link" hidden>✎ Edit this post</a>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <p>
+      © <span id="year"></span> Zhuoqi Fu
+      <span class="footer-sep">·</span>
+      Built with plain HTML & CSS
+    </p>
+  </footer>
+
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/purify.min.js"></script>
+  <script src="blog.js"></script>
+  <script src="script.js"></script>
+  <script>
+    (async function initPost() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+
+      if (!slug) {
+        document.getElementById('post-content').innerHTML =
+          '<p class="error">No post specified. <a href="/">Browse all posts →</a></p>';
+        return;
+      }
+
+      const contentEl = document.getElementById('post-content');
+      const headerEl = document.getElementById('post-header');
+
+      try {
+        await renderPost(contentEl, headerEl, slug);
+        // Show edit link if admin is authenticated
+        if (sessionStorage.getItem('github_token')) {
+          const editLink = document.getElementById('post-edit-link');
+          editLink.href = `/admin.html?edit=${encodeURIComponent(slug)}`;
+          editLink.hidden = false;
+        }
+      } catch (err) {
+        contentEl.innerHTML = '<p class="error">Failed to load post. Please try again.</p>';
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>
