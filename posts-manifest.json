@@ -1,9 +1,20 @@
 [
   {
+    "slug": "a-complete-guide-on-setting-up-new-mac",
+    "title": "A Complete Guide on Setting Up New Mac",
+    "date": "2026-06-07",
+    "tags": [],
+    "readTime": "2 min",
+    "excerpt": ""
+  },
+  {
     "slug": "llm-reasoning",
     "title": "LLM Reasoning: How Models \"Think\" Before They Speak",
     "date": "2026-06-02",
-    "tags": ["LLM", "Reasoning"],
+    "tags": [
+      "LLM",
+      "Reasoning"
+    ],
     "readTime": "8 min",
     "excerpt": "An exploration of chain-of-thought reasoning, how modern LLMs break down complex problems step-by-step, and why test-time compute is the new frontier for model capability."
   },
@@ -11,15 +22,22 @@
     "slug": "building-ai-agents",
     "title": "Building AI Agents: A Practical Guide for 2026",
     "date": "2026-05-18",
-    "tags": ["Agents", "Engineering"],
+    "tags": [
+      "Agents",
+      "Engineering"
+    ],
     "readTime": "12 min",
-    "excerpt": "From tool use to multi-agent orchestration — a hands-on look at the patterns and pitfalls of building reliable AI agents. Covers planning, memory, tool selection, and evaluation strategies."
+    "excerpt": "From tool use to multi-agent orchestration â a hands-on look at the patterns and pitfalls of building reliable AI agents. Covers planning, memory, tool selection, and evaluation strategies."
   },
   {
     "slug": "from-vector-to-semantic-search",
     "title": "From Vector Search to Semantic Understanding",
     "date": "2026-04-25",
-    "tags": ["Search", "Embeddings", "RAG"],
+    "tags": [
+      "Search",
+      "Embeddings",
+      "RAG"
+    ],
     "readTime": "10 min",
     "excerpt": "How modern retrieval systems evolved from TF-IDF to dense embeddings and hybrid search. A deep dive into embedding models, ANN indices, re-ranking, and the role of RAG in production search pipelines."
   },
@@ -27,16 +45,22 @@
     "slug": "data-science-starbucks",
     "title": "What I Learned About Data Science at Starbucks Japan",
     "date": "2026-03-10",
-    "tags": ["Data Science", "Retail"],
+    "tags": [
+      "Data Science",
+      "Retail"
+    ],
     "readTime": "7 min",
-    "excerpt": "Reflections on applying machine learning in a retail environment — demand forecasting, customer segmentation, and the unique challenges of the Japanese market."
+    "excerpt": "Reflections on applying machine learning in a retail environment â demand forecasting, customer segmentation, and the unique challenges of the Japanese market."
   },
   {
     "slug": "attention-is-all-you-need-explained",
-    "title": "Attention Is All You Need — Explained Visually",
+    "title": "Attention Is All You Need â Explained Visually",
     "date": "2026-02-14",
-    "tags": ["Transformers", "Deep Learning"],
+    "tags": [
+      "Transformers",
+      "Deep Learning"
+    ],
     "readTime": "15 min",
-    "excerpt": "A visual walkthrough of the Transformer architecture — self-attention, multi-head attention, positional encoding, and how these building blocks came to dominate modern AI. No PhD required."
+    "excerpt": "A visual walkthrough of the Transformer architecture â self-attention, multi-head attention, positional encoding, and how these building blocks came to dominate modern AI. No PhD required."
   }
 ]
