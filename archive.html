@@ -10,51 +10,125 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="/" class="nav-brand">Zhuoqi's Blog</a>
-      <ul class="nav-links">
-        <li><a href="/">Posts</a></li>
-        <li><a href="archive.html" class="active">Archive</a></li>
-        <li><a href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-        <li><a href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-      </ul>
+  <!-- Login Gate (shown when not authenticated) -->
+  <div id="login-gate" class="login-gate" hidden>
+    <div class="login-card">
+      <h1 class="login-title">Zhuoqi's Blog</h1>
+      <p class="login-desc">
+        This is a private blog. Sign in with your GitHub account to continue.
+      </p>
+      <button id="login-btn" class="login-btn login-btn-github">
+        <svg class="login-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Sign in with GitHub
+      </button>
+      <p id="login-error" class="login-error" hidden></p>
     </div>
-  </nav>
+  </div>
 
-  <main class="main">
-    <h1 style="font-size:1.6rem;font-weight:700;margin-bottom:0.5rem;">Archive</h1>
-    <p style="color:var(--color-muted);margin-bottom:1.5rem;">All posts, sorted by date.</p>
+  <!-- Main Content (shown when authenticated) -->
+  <div id="main-content" hidden>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="/" class="nav-brand">Zhuoqi's Blog</a>
+        <ul class="nav-links">
+          <li><a href="/">Posts</a></li>
+          <li><a href="archive.html" class="active">Archive</a></li>
+          <li><a href="admin.html">Admin</a></li>
+          <li><a href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="#" id="logout-link">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
 
-    <div id="archive-container">
-      <p class="loading-placeholder">Loading archive...</p>
-    </div>
-  </main>
+    <main class="main">
+      <h1 style="font-size:1.6rem;font-weight:700;margin-bottom:0.5rem;">Archive</h1>
+      <p style="color:var(--color-muted);margin-bottom:1.5rem;">All posts, sorted by date.</p>
 
-  <footer class="footer">
-    <p>
-      © <span id="year"></span> Zhuoqi Fu
-      <span class="footer-sep">·</span>
-      Built with plain HTML & CSS
-      <span class="footer-sep">·</span>
-      <a href="#">Back to top ↑</a>
-    </p>
-  </footer>
+      <div id="archive-container">
+        <p class="loading-placeholder">Loading archive...</p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>
+        © <span id="year"></span> Zhuoqi Fu
+        <span class="footer-sep">·</span>
+        Built with plain HTML & CSS
+        <span class="footer-sep">·</span>
+        <a href="#">Back to top ↑</a>
+      </p>
+    </footer>
+  </div>
 
   <script src="lib/marked.min.js"></script>
   <script src="lib/purify.min.js"></script>
+  <script src="auth.js"></script>
   <script src="blog.js"></script>
   <script src="script.js"></script>
   <script>
-    (async function initArchive() {
-      const container = document.getElementById('archive-container');
+    // --- DOM refs ---
+    var loginGate = document.getElementById('login-gate');
+    var loginBtn = document.getElementById('login-btn');
+    var loginError = document.getElementById('login-error');
+    var mainContent = document.getElementById('main-content');
+    var logoutLink = document.getElementById('logout-link');
+
+    function showLogin() {
+      loginGate.hidden = false;
+      mainContent.hidden = true;
+    }
+
+    function showContent() {
+      loginGate.hidden = true;
+      mainContent.hidden = false;
+      initArchive();
+    }
+
+    async function initArchive() {
+      var container = document.getElementById('archive-container');
       try {
-        const posts = await fetchManifest();
+        var posts = await fetchManifest();
         renderArchive(container, posts);
       } catch (err) {
         container.innerHTML = '<p class="error">Failed to load archive. Please refresh the page.</p>';
         console.error(err);
       }
+    }
+
+    // --- Event listeners ---
+    loginBtn.addEventListener('click', function () {
+      loginError.hidden = true;
+      startOAuth();
+    });
+
+    logoutLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      logout();
+      showLogin();
+    });
+
+    // --- Init ---
+    (async function init() {
+      var authed = await handleOAuthCallback();
+
+      if (authed) {
+        var redirect = sessionStorage.getItem('auth_redirect');
+        sessionStorage.removeItem('auth_redirect');
+        if (redirect && redirect !== window.location.href) {
+          window.location.href = redirect;
+          return;
+        }
+        showContent();
+        return;
+      }
+
+      if (isAuthenticated()) {
+        showContent();
+        return;
+      }
+
+      showLogin();
     })();
   </script>
 </body>

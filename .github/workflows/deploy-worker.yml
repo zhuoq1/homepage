@@ -11,9 +11,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: oauth-worker
 
     steps:
       - uses: actions/checkout@v4
@@ -22,13 +19,11 @@ jobs:
         with:
           node-version: '20'
 
-      # No `npm ci` needed — worker.js has no dependencies.
-      # If you add npm packages later, uncomment:
-      # - run: npm ci
-
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: oauth-worker
+      - name: Verify auth & deploy
+        working-directory: oauth-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler whoami
+          npx wrangler deploy

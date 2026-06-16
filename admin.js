@@ -1,32 +1,12 @@
 // ========================================
-// Admin JS — Auth (GitHub OAuth), Editor, Persistence
+// Admin JS — Editor, Drafts, Persistence
 // ========================================
-
-// Authentication uses GitHub OAuth via a Cloudflare Worker.
-// The worker holds the OAuth Client Secret server-side — it never
-// reaches the browser. Only the owner (zhuoq1) can authenticate.
-
-// --- Config ---
-// Replace with your deployed Cloudflare Worker URL:
-const OAUTH_WORKER_URL = 'https://zhuoqi-homepage-admin.zhuoqi-homepage.workers.dev';
-
-// --- Helpers ---
-
-/** Safely encode a Unicode string to base64 (replaces deprecated unescape). */
-function toBase64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
+//
+// Auth (GitHub OAuth) is handled by auth.js — loaded before this script.
+// This file manages the blog post editor, localStorage drafts,
+// and GitHub API CRUD operations (publish/delete).
 
 // --- DOM Elements ---
-const loginGate = document.getElementById('login-gate');
-const loginBtn = document.getElementById('login-btn');
-const loginError = document.getElementById('login-error');
-const adminApp = document.getElementById('admin-app');
 const postSelector = document.getElementById('post-selector');
 const postTitle = document.getElementById('post-title');
 const postDate = document.getElementById('post-date');
@@ -44,103 +24,6 @@ const adminStatus = document.getElementById('admin-status');
 
 let currentSlug = null; // null = new post, string = editing existing
 let postsManifest = [];
-
-// ==========================================
-// Auth — GitHub OAuth
-// ==========================================
-
-/** Whether we have a valid token in sessionStorage. */
-function isAuthenticated() {
-  return !!sessionStorage.getItem('github_token');
-}
-
-/** Return the OAuth access token (used by publish/delete). */
-function getPat() {
-  return sessionStorage.getItem('github_token');
-}
-
-/**
- * Kick off the GitHub OAuth flow.
- * Redirects to the Cloudflare Worker, which redirects to GitHub,
- * which then calls back to the worker, which finally redirects
- * back here with the token in the URL hash.
- */
-function startOAuth() {
-  window.location.href = `${OAUTH_WORKER_URL}/auth`;
-}
-
-/**
- * Extract the access token from the URL hash, validate it, and
- * store it in sessionStorage.
- * Called on page load.
- */
-async function handleOAuthCallback() {
-  const hash = window.location.hash;
-  if (!hash.startsWith('#access_token=')) return;
-
-  const token = hash.slice('#access_token='.length);
-
-  // Validate the token against the GitHub API
-  try {
-    const resp = await fetch('https://api.github.com/user', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (resp.ok) {
-      const user = await resp.json();
-      sessionStorage.setItem('github_token', token);
-      sessionStorage.setItem('admin_user', user.login);
-
-      // Clean the URL — remove the hash so the token isn't
-      // visible in the address bar or browser history
-      history.replaceState(null, '', window.location.pathname);
-
-      loginGate.hidden = true;
-      adminApp.hidden = false;
-      initAdmin();
-    } else {
-      // Token invalid — show login gate with error
-      history.replaceState(null, '', window.location.pathname);
-      loginGate.hidden = false;
-      adminApp.hidden = true;
-      loginError.textContent = 'Authentication failed. Please try signing in again.';
-      loginError.hidden = false;
-    }
-  } catch (err) {
-    history.replaceState(null, '', window.location.pathname);
-    loginGate.hidden = false;
-    adminApp.hidden = true;
-    loginError.textContent = `Network error: ${err.message}`;
-    loginError.hidden = false;
-  }
-}
-
-/** Decide which view to show: login gate or admin app. */
-function checkAuth() {
-  if (isAuthenticated()) {
-    loginGate.hidden = true;
-    adminApp.hidden = false;
-    initAdmin();
-  } else {
-    loginGate.hidden = false;
-    adminApp.hidden = true;
-  }
-}
-
-// --- Event listeners ---
-
-loginBtn.addEventListener('click', () => {
-  loginError.hidden = true;
-  startOAuth();
-});
-
-document.getElementById('logout-btn').addEventListener('click', () => {
-  sessionStorage.removeItem('github_token');
-  sessionStorage.removeItem('admin_user');
-  // Re-show the login gate
-  loginGate.hidden = false;
-  adminApp.hidden = true;
-});
 
 // ==========================================
 // Editor
@@ -359,7 +242,7 @@ btnPublish.addEventListener('click', async () => {
     return;
   }
 
-  // Check for GitHub PAT
+  // Check for GitHub PAT (from auth.js)
   const pat = getPat();
   if (!pat) {
     showStatus('Not authenticated. Please log in again.', 'error');
@@ -623,10 +506,3 @@ document.addEventListener('keydown', (e) => {
     btnPublish.click();
   }
 });
-
-// Initial load: handle OAuth callback if returning from GitHub,
-// otherwise show login gate or admin depending on stored token.
-(async function init() {
-  await handleOAuthCallback();
-  checkAuth();
-})();

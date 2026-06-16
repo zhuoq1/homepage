@@ -26,7 +26,7 @@
   </div>
 
   <!-- Admin Dashboard (shown when authenticated) -->
-  <div id="admin-app" class="admin-app">
+  <div id="admin-app" class="admin-app" hidden>
     <!-- Top Bar -->
     <header class="admin-topbar">
       <div class="admin-topbar-left">
@@ -114,7 +114,59 @@
 
   <script src="lib/marked.min.js"></script>
   <script src="lib/purify.min.js"></script>
+  <script src="auth.js"></script>
   <script src="blog.js"></script>
   <script src="admin.js"></script>
+  <script>
+    // --- Auth gate for admin page ---
+    var loginGate = document.getElementById('login-gate');
+    var loginBtn = document.getElementById('login-btn');
+    var loginError = document.getElementById('login-error');
+    var adminApp = document.getElementById('admin-app');
+
+    function showLogin() {
+      loginGate.hidden = false;
+      adminApp.hidden = true;
+    }
+
+    function showAdmin() {
+      loginGate.hidden = true;
+      adminApp.hidden = false;
+      initAdmin();
+    }
+
+    loginBtn.addEventListener('click', function () {
+      loginError.hidden = true;
+      startOAuth();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      logout();
+      showLogin();
+    });
+
+    (async function init() {
+      // Handle OAuth callback (in case we're returning from GitHub)
+      var authed = await handleOAuthCallback();
+
+      if (authed) {
+        var redirect = sessionStorage.getItem('auth_redirect');
+        sessionStorage.removeItem('auth_redirect');
+        if (redirect && redirect !== window.location.href) {
+          window.location.href = redirect;
+          return;
+        }
+        showAdmin();
+        return;
+      }
+
+      if (isAuthenticated()) {
+        showAdmin();
+        return;
+      }
+
+      showLogin();
+    })();
+  </script>
 </body>
 </html>

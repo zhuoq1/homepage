@@ -10,87 +10,169 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="/" class="nav-brand">Zhuoqi's Blog</a>
-      <ul class="nav-links">
-        <li><a href="/" class="active">Posts</a></li>
-        <li><a href="archive.html">Archive</a></li>
-        <li><a href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-        <li><a href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="main">
-    <!-- Author Intro -->
-    <section class="intro">
-      <div class="intro-header">
-        <img
-          class="intro-avatar"
-          src="avatar.jpg"
-          alt="Zhuoqi Fu"
-          width="64"
-          height="64"
-        >
-        <div>
-          <h1 class="intro-greeting">Hi, I'm Zhuoqi (Allen) 👋</h1>
-        </div>
-      </div>
-      <p class="intro-text">
-        I'm a Data Scientist based in Tokyo, currently at Starbucks Japan.
-        I write about machine learning, large language models, and building
-        data-driven products. Welcome to my blog!
+  <!-- Login Gate (shown when not authenticated) -->
+  <div id="login-gate" class="login-gate" hidden>
+    <div class="login-card">
+      <h1 class="login-title">Zhuoqi's Blog</h1>
+      <p class="login-desc">
+        This is a private blog. Sign in with your GitHub account to continue.
       </p>
-      <div class="social-links">
-        <a class="social-link" href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          GitHub
-        </a>
-        <a class="social-link" href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          LinkedIn
-        </a>
+      <button id="login-btn" class="login-btn login-btn-github">
+        <svg class="login-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Sign in with GitHub
+      </button>
+      <p id="login-error" class="login-error" hidden></p>
+    </div>
+  </div>
+
+  <!-- Main Content (shown when authenticated) -->
+  <div id="main-content" hidden>
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="/" class="nav-brand">Zhuoqi's Blog</a>
+        <ul class="nav-links">
+          <li><a href="/" class="active">Posts</a></li>
+          <li><a href="archive.html">Archive</a></li>
+          <li><a href="admin.html">Admin</a></li>
+          <li><a href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="#" id="logout-link">Logout</a></li>
+        </ul>
       </div>
-    </section>
+    </nav>
 
-    <!-- Blog Posts -->
-    <h2 class="posts-header">Recent Posts</h2>
-    <section id="posts-container" aria-live="polite">
-      <p class="loading-placeholder">Loading posts...</p>
-    </section>
-  </main>
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Author Intro -->
+      <section class="intro">
+        <div class="intro-header">
+          <img
+            class="intro-avatar"
+            src="avatar.jpg"
+            alt="Zhuoqi Fu"
+            width="64"
+            height="64"
+          >
+          <div>
+            <h1 class="intro-greeting">Hi, I'm Zhuoqi (Allen) 👋</h1>
+          </div>
+        </div>
+        <p class="intro-text">
+          I'm a Data Scientist based in Tokyo, currently at Starbucks Japan.
+          I write about machine learning, large language models, and building
+          data-driven products. Welcome to my blog!
+        </p>
+        <div class="social-links">
+          <a class="social-link" href="https://github.com/zhuoq1" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a class="social-link" href="https://www.linkedin.com/in/zhuoqi/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+      </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>
-      © <span id="year"></span> Zhuoqi Fu
-      <span class="footer-sep">·</span>
-      Built with plain HTML & CSS
-      <span class="footer-sep">·</span>
-      <a href="#">Back to top ↑</a>
-    </p>
-  </footer>
+      <!-- Blog Posts -->
+      <h2 class="posts-header">Recent Posts</h2>
+      <section id="posts-container" aria-live="polite">
+        <p class="loading-placeholder">Loading posts...</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        © <span id="year"></span> Zhuoqi Fu
+        <span class="footer-sep">·</span>
+        Built with plain HTML & CSS
+        <span class="footer-sep">·</span>
+        <a href="#">Back to top ↑</a>
+      </p>
+    </footer>
+  </div>
 
   <script src="lib/marked.min.js"></script>
   <script src="lib/purify.min.js"></script>
+  <script src="auth.js"></script>
   <script src="blog.js"></script>
   <script src="script.js"></script>
   <script>
-    // Initialize homepage
-    (async function initHome() {
-      const container = document.getElementById('posts-container');
+    // --- DOM refs ---
+    var loginGate = document.getElementById('login-gate');
+    var loginBtn = document.getElementById('login-btn');
+    var loginError = document.getElementById('login-error');
+    var mainContent = document.getElementById('main-content');
+    var logoutLink = document.getElementById('logout-link');
+
+    /** Show the login gate, hide content. */
+    function showLogin() {
+      loginGate.hidden = false;
+      mainContent.hidden = true;
+    }
+
+    /** Show the blog content, hide login gate. */
+    function showContent() {
+      loginGate.hidden = true;
+      mainContent.hidden = false;
+      initBlog();
+    }
+
+    /** Load and render the blog posts list. */
+    async function initBlog() {
+      var container = document.getElementById('posts-container');
       try {
-        const posts = await fetchManifest();
-        const params = new URLSearchParams(window.location.search);
-        const page = parseInt(params.get('page')) || 1;
+        var posts = await fetchManifest();
+        var params = new URLSearchParams(window.location.search);
+        var page = parseInt(params.get('page')) || 1;
         renderPostList(container, posts, page);
       } catch (err) {
         container.innerHTML = '<p class="error">Failed to load posts. Please refresh the page.</p>';
         console.error(err);
       }
+    }
+
+    // --- Event listeners ---
+
+    loginBtn.addEventListener('click', function () {
+      loginError.hidden = true;
+      startOAuth();
+    });
+
+    logoutLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      logout();
+      showLogin();
+    });
+
+    // --- Init ---
+
+    (async function init() {
+      // 1. Handle OAuth callback (token in URL hash after GitHub redirect)
+      var authed = await handleOAuthCallback();
+
+      if (authed) {
+        // Successfully authenticated — redirect to saved page if different
+        var redirect = sessionStorage.getItem('auth_redirect');
+        sessionStorage.removeItem('auth_redirect');
+        if (redirect && redirect !== window.location.href && !redirect.endsWith('/')) {
+          window.location.href = redirect;
+          return;
+        }
+        showContent();
+        return;
+      }
+
+      // 2. Check existing session
+      if (isAuthenticated()) {
+        showContent();
+        return;
+      }
+
+      // 3. Not authenticated — show login gate
+      showLogin();
     })();
   </script>
 </body>
