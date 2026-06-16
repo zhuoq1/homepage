@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'oauth-worker/**'
+      - '.github/workflows/deploy-worker.yml'
   workflow_dispatch:  # allow manual trigger
 
 jobs:
