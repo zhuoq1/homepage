@@ -12,6 +12,7 @@
 
 export default {
   async fetch(request, env) {
+    try {
     const url = new URL(request.url);
 
     // --- GET /auth — redirect to GitHub OAuth authorize page ---
@@ -27,19 +28,16 @@ export default {
         state,
       });
 
-      const redirectResp = Response.redirect(
-        `https://github.com/login/oauth/authorize?${params}`,
-        302,
-      );
-
-      // Store state in a short-lived, HttpOnly, Secure cookie
+      // Redirect to GitHub and set the state cookie
       // (10-minute expiry covers the time to complete the GitHub auth flow)
-      redirectResp.headers.set(
-        'Set-Cookie',
-        `oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/`,
-      );
-
-      return redirectResp;
+      // Use new Response() — Response.redirect() returns immutable headers.
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `https://github.com/login/oauth/authorize?${params}`,
+          'Set-Cookie': `oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/`,
+        },
+      });
     }
 
     // --- GET /callback?code=...&state=... ---
@@ -54,7 +52,10 @@ export default {
       // Verify the state parameter matches the cookie (CSRF protection)
       const cookieHeader = request.headers.get('Cookie') || '';
       const cookies = Object.fromEntries(
-        cookieHeader.split(';').map((c) => c.trim().split('=')),
+        cookieHeader
+          .split(';')
+          .map((c) => c.trim().split('=', 2))
+          .filter(([k]) => k),
       );
       const storedState = cookies.oauth_state;
 
@@ -117,19 +118,24 @@ export default {
 
       // Redirect back to the admin page with the token in the URL hash
       // (hash fragments never reach the server — they stay in the browser)
-      const appUrl = env.APP_URL || 'https://zhuoqi.uk/admin.html';
+      const appUrl = env.APP_URL || 'https://zhuoqi.uk/';
       const redirectUrl = `${appUrl}#access_token=${tokenData.access_token}`;
 
-      // Clear the state cookie
-      const resp = Response.redirect(redirectUrl, 302);
-      resp.headers.set(
-        'Set-Cookie',
-        'oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/',
-      );
-      return resp;
+      // Redirect back and clear the state cookie
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: redirectUrl,
+          'Set-Cookie': 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/',
+        },
+      });
     }
 
     // --- Everything else ---
     return new Response('Not found', { status: 404 });
+    } catch (err) {
+      console.error('OAuth Worker error:', err);
+      return new Response('Internal server error', { status: 500 });
+    }
   },
 };

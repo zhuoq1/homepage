@@ -78,7 +78,7 @@ Finder边栏 - 右键「下载」「应用程序」 - 添加到程序坞
 
 ## 2 **常用软件**
 
-### 2**.1 日常**
+### **2.1 日常**
 
 1. [微信](https://mac.weixin.qq.com/?t=mac&lang=zh_CN)
 2. [Steam](https://store.steampowered.com/about/)
@@ -88,9 +88,8 @@ Finder边栏 - 右键「下载」「应用程序」 - 添加到程序坞
 6. [The Unarchiver](https://theunarchiver.com)
 7. [Downie 4](https://software.charliemonroe.net/downie/)
 8. AdGuard
-9. 
 
-### 2**.2 工作**
+### **2.2 工作**
 
 1. [Notion](https://www.notion.so/desktop)
 2. Pages / Keynote / Numbers （Mac App Store）
@@ -98,7 +97,7 @@ Finder边栏 - 右键「下载」「应用程序」 - 添加到程序坞
 5. [Zoom](https://zoom.us/download#client_4meeting) / Cisco Webex / [腾讯会议](https://meeting.tencent.com/download/)
 6. [Outlook](https://www.microsoft.com/ja-jp/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook) / [Teams](https://www.microsoft.com/ja-jp/microsoft-teams/download-app)
 
-### 2**.3 开发**
+### **2.3 开发**
 
 1. [VS Code](https://code.visualstudio.com)
 2. [Alfred](https://www.alfredapp.com)
@@ -106,11 +105,11 @@ Finder边栏 - 右键「下载」「应用程序」 - 添加到程序坞
 
 ## 3 **命令行工具与包管理**
 
-### 3**.1 Xcode Command Line Tool**
+### **3.1 Xcode Command Line Tool**
 
 `xcode-select --install`
 
-### 3**.2 [HOMEBREW](https://brew.sh)
+### **3.2 [HOMEBREW](https://brew.sh)**
 
 Homebrew是一款经典的开源软件包管理系统，它可被用来简化macOS系统上的软件安装过程。
 
